@@ -1,0 +1,26 @@
+# Ignore virtual environment directory
+.venv/
+venv/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore environment variable files
+.env
+
+# Ignore sensitive JSON file containing secrets
+src/vetlink-marketplace-firebase-adminsdk-u7c83-4eb07f1a10.json
+
+# Ignore any logs or temporary files
+*.log
+*.tmp
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE specific files (if you use VS Code or PyCharm)
+.vscode/
+.idea/
+
