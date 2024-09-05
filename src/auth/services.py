@@ -7,8 +7,10 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from datetime import timedelta, datetime
 from typing import Optional, List
-import firebase_admin
-from firebase_admin import auth, storage, credentials
+from firebase_admin import auth, storage
+from src.firebase_utils import *
+
+
 
 from src.auth.models import User, UserRole
 from src.auth.schemas import UserCreate, UserUpdate
@@ -17,13 +19,6 @@ from src.database import get_db
 # Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv()
-
-# Firebase Initialization
-firebase_creds_path = os.getenv('FIREBASE_CREDENTIALS')
-cred = credentials.Certificate(firebase_creds_path)
-firebase_admin.initialize_app(cred, {
-    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
-})
 
 # Password hashing context setup
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -102,12 +97,14 @@ async def create_user(db: Session, user: UserCreate, role: UserRole = UserRole.u
         latitude=user.latitude,
         longitude=user.longitude,
         role=role,
-        is_super_admin=is_super_admin
+        is_super_admin=is_super_admin,
+        expo_push_token=user.expo_push_token  
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 async def authenticate(db: Session, identifier: str, password: str) -> Optional[User]:
     db_user = db.query(User).filter((User.username == identifier) | (User.email == identifier)).first()
@@ -224,3 +221,5 @@ async def get_user_by_email(db: Session, email: str) -> Optional[User]:
 
 async def get_all_users(db: Session) -> List[User]:
     return db.query(User).all()
+
+

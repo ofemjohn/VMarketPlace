@@ -48,6 +48,7 @@ async def signup_user(user: UserCreate, db: Session = Depends(get_db)) -> Dict:
             "longitude": db_user.longitude,
             "role": db_user.role.value,
             "created_dt": db_user.created_dt,
+            "expo_push_token": db_user.expo_push_token,
         }
     }
 
@@ -72,6 +73,7 @@ async def login(user: UserLogin, db: Session = Depends(get_db)) -> Dict:
             "longitude": db_user.longitude,
             "role": db_user.role.value,
             "created_dt": db_user.created_dt,
+            "expo_push_token": db_user.expo_push_token,
         }
     }
 
@@ -138,6 +140,7 @@ async def current_user(token: str = Depends(oauth2_scheme), db: Session = Depend
         "longitude": db_user.longitude,
         "role": db_user.role.value,
         "created_dt": db_user.created_dt,
+        "expo_push_token": db_user.expo_push_token,
     }
 
 # Update User Profile Route
@@ -154,6 +157,7 @@ async def update_user_route(user_update: UserUpdate, token: str = Depends(oauth2
         "longitude": db_user.longitude,
         "role": db_user.role.value,
         "created_dt": db_user.created_dt,
+        "expo_push_token": db_user.expo_push_token,
     }
 
 
@@ -189,6 +193,7 @@ async def get_all_users_route(db: Session = Depends(get_db)) -> List[Dict]:
         "role": user.role.value,
         "created_dt": user.created_dt,
         "is_super_admin": user.is_super_admin,
+        "expo_push_token": user.expo_push_token,
     } for user in users]
 
 # Admin Management Routes
@@ -230,3 +235,20 @@ async def list_admins(db: Session = Depends(get_db), current_user = Depends(get_
 async def setup_super_admin(user: UserCreate, db: Session = Depends(get_db)) -> Dict:
     db_user = await create_new_user(db, user, role=UserRole.admin, is_super_admin=True)
     return {"detail": f"Super admin {db_user.username} created successfully"}
+
+
+# Update FCM Token Route
+@router.put("/expo_push_token", status_code=status.HTTP_200_OK)
+async def update_expo_push_token(
+    expo_push_token: str = Body(..., embed=True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not expo_push_token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Expo push token is required")
+    
+    current_user.expo_push_token = expo_push_token
+    db.commit()
+    db.refresh(current_user)
+    
+    return {"detail": "Expo push token updated successfully"}

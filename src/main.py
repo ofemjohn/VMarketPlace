@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from src.api import router as api_router
+from src.api import router as api_routers
 
 from src.database import engine, Base
 from dotenv import load_dotenv
@@ -27,7 +27,7 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
 Base.metadata.create_all(bind=engine)
 
 # Include the main API router
-app.include_router(api_router)
+app.include_router(api_routers)
 
 @app.get("/")
 def read_root():

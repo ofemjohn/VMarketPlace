@@ -1,18 +1,18 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class VeterinarianCreate(BaseModel):
-    clinic_name: Optional[str] = Field(..., max_length=255)
-    specialty: Optional[str] = Field(..., max_length=255)
-    services_offered: Optional[str] = None
-    latitude: Optional[str] = float
-    longitude: Optional[str] = float
+    clinic_name: str = Field(..., max_length=255)
+    specialty: List[str] = Field(..., description="List of specialties the veterinarian has")
+    services_offered: Optional[List[str]] = Field(None, description="List of services offered by the veterinarian")
+    latitude: float
+    longitude: float
 
 class VeterinarianUpdate(BaseModel):
     clinic_name: Optional[str] = Field(None, max_length=255)
-    specialty: Optional[str] = Field(None, max_length=255)
-    services_offered: Optional[str] = None
+    specialty: Optional[List[str]] = Field(None, description="List of specialties the veterinarian has")
+    services_offered: Optional[List[str]] = Field(None, description="List of services offered by the veterinarian")
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     approved: Optional[bool] = None
@@ -21,8 +21,8 @@ class VeterinarianSchema(BaseModel):
     id: int
     user_id: int
     clinic_name: Optional[str] = None
-    specialty: Optional[str] = None
-    services_offered: Optional[str] = None
+    specialty: List[str] = []  # Returning a list of specialties
+    services_offered: List[str] = []  # Returning a list of services offered
     qualification_document: Optional[str] = None
     approved: bool
     latitude: Optional[float] = None
@@ -31,6 +31,7 @@ class VeterinarianSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class UserVeterinarianCreate(BaseModel):
     veterinarian_id: int
@@ -44,4 +45,4 @@ class UserVeterinarianSchema(BaseModel):
     notes: Optional[str] = None
 
     class Config:
-        from_attributes = True
+        form_attributes = True

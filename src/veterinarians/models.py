@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from src.database import Base
@@ -9,8 +9,8 @@ class Veterinarian(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
     clinic_name = Column(String, nullable=False)
-    specialty = Column(String, nullable=False)
-    services_offered = Column(String, nullable=True)
+    specialty = Column(JSON, nullable=False)  # Stored as a JSON list
+    services_offered = Column(JSON, nullable=True) 
     qualification_document = Column(String, nullable=True)
     approved = Column(Boolean, default=False)
     latitude = Column(Float, nullable=True)
@@ -20,6 +20,11 @@ class Veterinarian(Base):
     # Relationships
     user = relationship("User", back_populates="veterinarian")
     user_interactions = relationship("UserVeterinarian", back_populates="veterinarian")
+    appointments = relationship("Appointment", back_populates="veterinarian")
+    pet_records = relationship("PetRecord", back_populates="veterinarian")
+    chat_rooms = relationship("ChatRoom", back_populates="veterinarian")  # Add this line
+
+
 
 
 class UserVeterinarian(Base):
