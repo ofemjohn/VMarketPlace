@@ -1,18 +1,30 @@
-# src/firebase_utils.py
 import os
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, storage
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Firebase Initialization
-firebase_creds_path = os.getenv('FIREBASE_CREDENTIALS')
-cred = credentials.Certificate(firebase_creds_path)
+def initialize_firebase():
+    """Initialize Firebase Admin SDK"""
 
-# Initialize the Firebase app if it hasn't been initialized already
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {
-        'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
-    })
+    cred_path = os.getenv("FIREBASE_CREDENTIALS")
+    bucket_name = os.getenv("FIREBASE_STORAGE_BUCKET")
+
+    # Debugging: Print values to verify
+    print(f"🔍 FIREBASE_CREDENTIALS: {cred_path}")
+    print(f"🔍 FIREBASE_STORAGE_BUCKET: {bucket_name}")
+
+    # Ensure the credentials file exists
+    if not cred_path or not os.path.exists(cred_path):
+        raise FileNotFoundError(f"❌ Firebase credentials file not found: {cred_path}")
+
+    if not bucket_name:
+        raise ValueError("❌ Firebase Storage bucket name is missing from environment variables!")
+
+    if not firebase_admin._apps:  # Prevent multiple initializations
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred, {'storageBucket': bucket_name})
+
+    print("✅ Firebase Initialized Successfully")
